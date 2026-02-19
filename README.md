@@ -9,6 +9,11 @@ It focuses on two outcomes:
 1. Surface maintainability issues that reviewers repeatedly complain about.
 2. Apply only low-risk cleanup automatically, while labeling higher-risk rewrites as suggest-only.
 
+Safe rewrite behavior is intentionally conservative:
+
+- Python: remove only standalone low-signal comments (syntax-aware).
+- All languages: trim trailing whitespace and collapse excessive blank lines.
+
 ## What Counts As AI Slop (Practical)
 
 - Generic, context-free naming (`process_data`, `manager`, `helper`)

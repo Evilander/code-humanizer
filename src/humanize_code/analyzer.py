@@ -26,25 +26,21 @@ def iter_source_files(
     include_tests: bool = False,
     excluded_dirs: set[str] | None = None,
 ) -> list[Path]:
-    exts = extensions or DEFAULT_EXTENSIONS
-    skip_dirs = excluded_dirs or DEFAULT_EXCLUDED_DIRS
+    exts = _normalize_extensions(extensions or DEFAULT_EXTENSIONS)
+    skip_dirs = _normalize_dirs(excluded_dirs or DEFAULT_EXCLUDED_DIRS)
     discovered: list[Path] = []
     for path in paths:
         if path.is_file():
-            if path.suffix.lower() in exts:
-                if _should_skip_file(path, include_tests=include_tests, excluded_dirs=skip_dirs):
-                    continue
+            if path.suffix.lower() in exts and not _should_skip_file(
+                path, include_tests=include_tests, excluded_dirs=skip_dirs
+            ):
                 discovered.append(path)
             continue
         if path.is_dir():
             for file in path.rglob("*"):
-                if not file.is_file():
-                    continue
-                if _has_excluded_dir(file, skip_dirs):
-                    continue
-                if file.suffix.lower() in exts:
-                    if _should_skip_file(file, include_tests=include_tests, excluded_dirs=skip_dirs):
-                        continue
+                if _is_candidate_source_file(file, exts) and not _should_skip_file(
+                    file, include_tests=include_tests, excluded_dirs=skip_dirs
+                ):
                     discovered.append(file)
     return sorted(set(discovered))
 
@@ -286,7 +282,7 @@ def summarize_severity(issues: list[Issue]) -> dict[str, int]:
 
 
 def _has_excluded_dir(path: Path, excluded_dirs: set[str]) -> bool:
-    return any(part in excluded_dirs for part in path.parts)
+    return any(part.lower() in excluded_dirs for part in path.parts)
 
 
 def _looks_like_test_file(path: Path) -> bool:
@@ -304,3 +300,23 @@ def _should_skip_file(path: Path, include_tests: bool, excluded_dirs: set[str]) 
     if include_tests:
         return False
     return _looks_like_test_file(path)
+
+
+def _is_candidate_source_file(path: Path, extensions: set[str]) -> bool:
+    return path.is_file() and path.suffix.lower() in extensions
+
+
+def _normalize_extensions(extensions: set[str]) -> set[str]:
+    normalized = set()
+    for ext in extensions:
+        cleaned = ext.strip().lower()
+        if not cleaned:
+            continue
+        if not cleaned.startswith("."):
+            cleaned = f".{cleaned}"
+        normalized.add(cleaned)
+    return normalized
+
+
+def _normalize_dirs(directories: set[str]) -> set[str]:
+    return {item.strip().lower() for item in directories if item.strip()}
