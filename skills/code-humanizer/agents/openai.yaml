@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Humanizer"
+  short_description: "Reduce AI-slop patterns and produce expert-style code rewrites"
+  default_prompt: "Analyze this repo for AI-slop code patterns, then propose high-signal expert rewrites with risk labels and tests."
