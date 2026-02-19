@@ -1,5 +1,7 @@
 # Code Humanizer
 
+Clean up your AI Agent's slop.
+
 `code-humanizer` is a Python project plus agent-ready skill files that detect and reduce "AI slop" patterns in source code.
 
 It focuses on two outcomes:
