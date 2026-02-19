@@ -125,7 +125,9 @@ def _print_human_scan(files: list[Path], reports: list[FileReport]) -> None:
     if severity_totals:
         summary = ", ".join(
             f"{severity}={count}"
-            for severity, count in sorted(severity_totals.items(), key=lambda item: SEVERITY_ORDER[item[0]], reverse=True)
+            for severity, count in sorted(
+                severity_totals.items(), key=lambda item: SEVERITY_ORDER.get(item[0], 0), reverse=True
+            )
         )
         print(f"Issues by severity: {summary}")
     print("")

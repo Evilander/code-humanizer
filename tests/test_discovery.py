@@ -32,3 +32,17 @@ def test_iter_source_files_can_include_tests(tmp_path: Path) -> None:
     assert src_file.resolve() in found_set
     assert test_file.resolve() in found_set
 
+
+def test_iter_source_files_normalizes_extensions_and_dirs(tmp_path: Path) -> None:
+    src_file = tmp_path / "SRC" / "main.PY"
+    cache_file = tmp_path / ".PyTest_Cache" / "noise.py"
+    src_file.parent.mkdir(parents=True, exist_ok=True)
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    src_file.write_text("value = 1\n", encoding="utf-8")
+    cache_file.write_text("value = 2\n", encoding="utf-8")
+
+    found = iter_source_files([tmp_path], extensions={"py"})
+    found_set = {path.resolve() for path in found}
+
+    assert src_file.resolve() in found_set
+    assert cache_file.resolve() not in found_set
